@@ -10,4 +10,5 @@ wheels/
 .venv
 
 # Config files
-*.yaml
+config*.yaml
+recipe*.yaml
