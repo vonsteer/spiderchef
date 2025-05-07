@@ -12,3 +12,4 @@ wheels/
 # Config files
 config*.yaml
 recipe*.yaml
+output*.yaml
