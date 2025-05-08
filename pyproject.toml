@@ -44,6 +44,7 @@ dependencies = [
 [dependency-groups]
 cli = ["typer>=0.15.3", "rich"]
 dev = [
+    {include-group = "cli"},
     "ruff==0.11.6",
     "pyright==1.1.399",
     "pre-commit==4.2.0",

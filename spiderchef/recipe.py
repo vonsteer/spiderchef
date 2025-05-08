@@ -26,7 +26,7 @@ class Recipe(BaseModel):
     base_url: str
     session_type: Literal["aiohttp", "curl-cffi"] = "curl-cffi"
     http_version: Literal["1", "1.1", "2", "3"] = "2"
-    impersonate: str = "firefox133"
+    impersonate: str = "firefox"
     default_encoding: str = "utf-8"
     _session: ClientSession | AsyncSession | None = None
     _response: ClientResponse | Response | None = None
@@ -95,14 +95,19 @@ class Recipe(BaseModel):
     async def cook(self) -> Any:
         output = None
         log.info(f"🥣🥄🔥 Cooking '{self.name}' recipe!")
-        for step_number, step in enumerate(self.steps, start=1):
-            log.info(
-                f"➡️  {step_number}. {step.name}...", step_class=step.__class__.__name__
-            )
-            if issubclass(type(step), AsyncStep):
-                output = await step.execute(self, output)
-            else:
-                output = step.execute(self, output)
+        try:
+            for step_number, step in enumerate(self.steps, start=1):
+                log.info(
+                    f"➡️  {step_number}. {step.name}...",
+                    step_class=step.__class__.__name__,
+                )
+                if issubclass(type(step), AsyncStep):
+                    output = await step.execute(self, output)
+                else:
+                    output = step.execute(self, output)
+        except Exception as e:
+            await self.close()
+            raise e
         await self.close()
         log.info(f"🍞 '{self.name}' recipe finished", output=output)
         return output

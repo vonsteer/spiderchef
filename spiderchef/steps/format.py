@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 from structlog import get_logger
 
+from spiderchef.settings import RE_HTML_TAGS, RE_WHITESPACE_CHARS
 from spiderchef.steps.base import SyncStep
 
 if TYPE_CHECKING:
@@ -18,18 +19,53 @@ class ToInt(SyncStep):
         return int(previous_output)
 
 
+class ToStr(SyncStep):
+    """Convert to string."""
+
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        return str(previous_output)
+
+
+class ToFloat(SyncStep):
+    """Convert to float."""
+
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        return float(previous_output)
+
+
+class RemoveHTMLTags(SyncStep):
+    """Removes HTML Tags from strings."""
+
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        return RE_HTML_TAGS.sub("", previous_output)
+
+
+class RemoveExtraWhitespace(SyncStep):
+    """Convert to integer."""
+
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        return RE_WHITESPACE_CHARS.sub(" ", previous_output)
+
+
 class JoinBaseUrl(SyncStep):
     """Joins a string (+optional path) with base_url"""
 
+    base_url: str = ""
     path: str = ""
+    suffix: str = ""
 
     def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        if not (base_url := self.base_url):
+            base_url = recipe.base_url
         if isinstance(previous_output, list):
             previous_output = [
-                urljoin(recipe.base_url, self.path + str(i)) for i in previous_output
+                urljoin(base_url, self.path + str(i)) + self.suffix
+                for i in previous_output
             ]
         else:
-            previous_output = urljoin(recipe.base_url, self.path + str(previous_output))
+            previous_output = urljoin(
+                base_url, self.path + str(previous_output) + self.suffix
+            )
         return previous_output
 
 

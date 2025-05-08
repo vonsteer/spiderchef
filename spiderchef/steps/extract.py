@@ -44,20 +44,29 @@ class XpathValueStep(SyncStep):
     expression: str
     return_type: Literal["text", "element", "html"] = "html"
     rebuild_tree: bool = False
+    index: int | None = None
 
     def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
         output = []
-        if not recipe._tree or self.rebuild_tree:
-            recipe._tree = fromstring(recipe.text_response)
-        if recipe._tree is not None:
-            for i in recipe._tree.xpath(self.expression):
+        if not self.use_previous_output and not recipe._tree or self.rebuild_tree:
+            recipe._tree = tree = fromstring(recipe.text_response)
+        if self.use_previous_output and isinstance(previous_output, str):
+            tree = fromstring(previous_output)
+        if tree is not None:
+            for i in tree.xpath(self.expression):
                 if self.return_type == "text":
-                    output.append(i.text)
+                    output.append("".join(i.itertext()))
                 elif self.return_type == "element":
                     output.append(i)
                 else:
                     output.append(tostring(i, encoding="utf-8").decode())
+        if isinstance(self.index, int):
+            return output[self.index]
         return output
+
+
+class XpathFirstStep(XpathValueStep):
+    index: int = 0
 
 
 class RegexValueStep(SyncStep):
