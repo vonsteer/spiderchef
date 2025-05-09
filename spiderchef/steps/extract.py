@@ -47,6 +47,7 @@ class XpathValueStep(SyncStep):
     index: int | None = None
 
     def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        tree = None
         output = []
         if not self.use_previous_output and not recipe._tree or self.rebuild_tree:
             recipe._tree = tree = fromstring(recipe.text_response)
@@ -59,14 +60,15 @@ class XpathValueStep(SyncStep):
                 elif self.return_type == "element":
                     output.append(i)
                 else:
-                    output.append(tostring(i, encoding="utf-8").decode())
+                    item = tostring(i, encoding="utf-8")
+                    output.append(item.decode() if isinstance(item, bytes) else item)
         if isinstance(self.index, int):
             return output[self.index]
         return output
 
 
 class XpathFirstStep(XpathValueStep):
-    index: int = 0
+    index: int | None = 0
 
 
 class RegexValueStep(SyncStep):
@@ -87,7 +89,7 @@ class RegexValueStep(SyncStep):
 
 
 class RegexFirstStep(RegexValueStep):
-    index: int = 0
+    index: int | None = 0
 
 
 class ExtractItemsStep(AsyncStep):

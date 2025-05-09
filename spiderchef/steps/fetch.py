@@ -1,8 +1,5 @@
-import urllib
 from typing import TYPE_CHECKING, Any, Literal
 
-import orjson
-from aiohttp import ClientResponse
 from curl_cffi import Response
 from pydantic import Field
 from structlog import get_logger
@@ -19,6 +16,7 @@ log = get_logger()
 class FetchStep(AsyncStep):
     """Step to fetch data from an API."""
 
+    assign_to_base: bool = True
     return_type: Literal["text", "json", "response"] = "text"
     method: Literal["GET", "POST"] = "GET"
     path: str = ""
@@ -29,61 +27,48 @@ class FetchStep(AsyncStep):
     ok_status_codes: list[int] = Field(default_factory=list)
     timeout: int = 5
 
-    def validate_response(self, response: ClientResponse | Response):
-        if isinstance(response, ClientResponse):
-            status = response.status
-        else:
-            status = response.status_code
+    def validate_response(self, response: Response):
         if not self.ok_status_codes:
             self.ok_status_codes = [200]
-        if status not in self.ok_status_codes:
-            raise ResponseIsNotOkError(status)
+        if response.status_code not in self.ok_status_codes:
+            raise ResponseIsNotOkError(response.status_code)
 
     async def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
         session = await recipe.session
-        encoded_params = (
-            urllib.parse.urlencode(self.params, doseq=True)
-            if recipe.session_type == "aiohttp"
-            else self.params
-        )
         match self.method:
             case "GET":
-                recipe._response = await session.get(
+                response = await session.get(
                     url=self.path,
-                    params=encoded_params,
+                    params=self.params,
                     timeout=self.timeout,
                     headers=self.headers,
                 )
             case "POST":
                 if self.data:
-                    recipe._response = await session.post(
+                    response = await session.post(
                         url=self.path,
-                        params=encoded_params,
+                        params=self.params,
                         data=self.data,
                         timeout=self.timeout,
                         headers=self.headers,
                     )
                 else:
-                    recipe._response = await session.post(
+                    response = await session.post(
                         url=self.path,
-                        params=encoded_params,
+                        params=self.params,
                         json=self.json_data,
                         timeout=self.timeout,
                         headers=self.headers,
                     )
-        self.validate_response(recipe._response)
-        if recipe.session_type == "aiohttp":
-            recipe.text_response = await recipe._response.text()
-            if self.return_type == "json":
-                recipe.json_response = await recipe._response.json(loads=orjson.loads)
-        else:
-            recipe.text_response = recipe._response.text
-            if self.return_type == "json":
-                recipe.json_response = recipe._response.json()
+        self.validate_response(response)
+        if self.assign_to_base:
+            recipe.text_response = response.text
+        if self.return_type == "json" and self.assign_to_base:
+            recipe.json_response = response.json()
         match self.return_type:
             case "json":
-                return recipe.json_response
+                return response.json()
             case "text":
-                return recipe.text_response
+                return response.text
             case "response":
-                return recipe._response
+                return response

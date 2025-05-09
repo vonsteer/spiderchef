@@ -33,7 +33,6 @@ classifiers = [
 dependencies = [
     "PyYAML>=6.0.2",
     "pydantic>=2.11.4",
-    "aiohttp>=3.11.18",
     "pydash>=8.0.5",
     "structlog>=25.3.0",
     "orjson>=3.10.18",

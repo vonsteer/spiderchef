@@ -11,7 +11,7 @@ class BaseStep(ABC, BaseModel):
     """Base step class that all steps inherit from."""
 
     name: str = "unnamed_step"
-    step_registry: ClassVar[dict[str, "BaseStep"]]
+    step_registry: ClassVar[dict[str, type["BaseStep"]]]
     use_previous_output: bool = True
 
     @abstractmethod

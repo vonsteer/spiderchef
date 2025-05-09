@@ -1,8 +1,7 @@
 from typing import Any, ClassVar, Literal
 
 import yaml
-from aiohttp import ClientResponse, ClientSession
-from curl_cffi import CurlHttpVersion
+from curl_cffi import BrowserTypeLiteral, CurlHttpVersion
 from curl_cffi.requests import AsyncSession, Response
 from lxml.etree import _ElementTree
 from pydantic import BaseModel, Field, HttpUrl, field_validator
@@ -21,15 +20,14 @@ class Proxy(BaseModel):
 
 
 class Recipe(BaseModel):
-    step_registry: ClassVar[dict[str, BaseStep]] = STEP_REGISTRY
+    step_registry: ClassVar[dict[str, type[BaseStep]]] = STEP_REGISTRY
     name: str = "test_recipe"
     base_url: str
-    session_type: Literal["aiohttp", "curl-cffi"] = "curl-cffi"
     http_version: Literal["1", "1.1", "2", "3"] = "2"
-    impersonate: str = "firefox"
+    impersonate: BrowserTypeLiteral = "firefox"
     default_encoding: str = "utf-8"
-    _session: ClientSession | AsyncSession | None = None
-    _response: ClientResponse | Response | None = None
+    _session: AsyncSession | None = None
+    _base_response: Response | None = None
     _tree: _ElementTree | None = None
     json_response: Any = None
     text_response: str | None = None
@@ -44,7 +42,7 @@ class Recipe(BaseModel):
         return cls(**data)
 
     @field_validator("steps", mode="before")
-    def convert_step_dicts(cls, value: list[dict]) -> dict:
+    def convert_step_dicts(cls, value: list[dict]) -> list[BaseStep]:
         """Convert step dictionaries to Step instances before model creation."""
         converted_steps = []
         for step in value:
@@ -65,26 +63,23 @@ class Recipe(BaseModel):
         return converted_steps
 
     @property
-    async def session(self) -> ClientSession | AsyncSession:
+    async def session(self) -> AsyncSession:
         if not self._session:
-            if self.session_type == "aiohttp":
-                self._session = ClientSession(base_url=self.base_url)
-            else:
-                match self.http_version:
-                    case "2":
-                        http_version = CurlHttpVersion.V2TLS
-                    case "1.1":
-                        http_version = CurlHttpVersion.V1_1
-                    case "1":
-                        http_version = CurlHttpVersion.V1_0
-                    case "3":
-                        http_version = CurlHttpVersion.V3
-                self._session = AsyncSession(
-                    base_url=self.base_url,
-                    http_version=http_version,
-                    impersonate=self.impersonate,
-                    default_encoding=self.default_encoding,
-                )
+            match self.http_version:
+                case "2":
+                    http_version = CurlHttpVersion.V2TLS
+                case "1.1":
+                    http_version = CurlHttpVersion.V1_1
+                case "1":
+                    http_version = CurlHttpVersion.V1_0
+                case "3":
+                    http_version = CurlHttpVersion.V3
+            self._session = AsyncSession(
+                base_url=self.base_url,
+                http_version=http_version,
+                impersonate=self.impersonate,
+                default_encoding=self.default_encoding,
+            )
             await self._session.__aenter__()
         return self._session
 

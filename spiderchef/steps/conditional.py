@@ -22,7 +22,7 @@ class CompareStep(SyncStep):
     ]
 
     def _execute(self, recipe: "Recipe", previous_output: Any = None) -> bool:
-        def get_value(json_response: dict[str, Any], key: str) -> int:
+        def get_value(json_response: dict[str, Any], key: str) -> float:
             if value := get(json_response, key):
                 return value if isinstance(value, float | int) else len(value)
             raise ValueError(f"Could not get value for key: {key}")
