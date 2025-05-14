@@ -60,7 +60,7 @@ async def test_compare_json_step_failure():
         name="test_compare", left_key="hello", right_key="there", condition="gt"
     )
     with pytest.raises(ValueError):
-        result = step.execute(MagicMock(), {"hello": 3})
+        step.execute(MagicMock(), {"hello": 3})
 
 
 @pytest.mark.asyncio
