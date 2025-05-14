@@ -51,6 +51,7 @@ dev = [
     "pytest~=8.3.5",
     "pytest-asyncio~=0.24.0",
     "pytest-cov~=6.1.1",
+    "pytest-httpbin~=2.1.0"
 ]
 
 
@@ -60,3 +61,36 @@ spiderchef = "spiderchef.cli:app"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    "ignore:The event_loop fixture provided by pytest-asyncio has been redefined:DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["spiderchef"]
+omit = ["tests/*", "examples/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+    "if TYPE_CHECKING:"
+]
+
+[tool.pytest-cov]
+cov = ["spiderchef"]
+cov-report = ["term-missing", "xml", "html"]
+
+[tool.pytest-env]
+HTTPBIN_URL = "http://localhost:8000"
+LOG_LEVEL = "ERROR"

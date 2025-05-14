@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import string
 from re import findall
 from typing import TYPE_CHECKING, Any, Literal
@@ -8,6 +10,7 @@ from pydash import get
 from structlog import get_logger
 
 from spiderchef.steps.base import AsyncStep, BaseStep, SyncStep
+from spiderchef.utils import convert_steps
 
 if TYPE_CHECKING:
     from spiderchef.recipe import Recipe
@@ -42,7 +45,7 @@ class XpathValueStep(SyncStep):
     """Step to xpath a value from the recipe's text data."""
 
     expression: str
-    return_type: Literal["text", "element", "html"] = "html"
+    return_type: Literal["text", "html"] = "html"
     rebuild_tree: bool = False
     index: int | None = None
 
@@ -55,14 +58,14 @@ class XpathValueStep(SyncStep):
             tree = fromstring(previous_output)
         if tree is not None:
             for i in tree.xpath(self.expression):
-                if self.return_type == "text":
-                    output.append("".join(i.itertext()))
-                elif self.return_type == "element":
+                if isinstance(i, str):
                     output.append(i)
+                elif self.return_type == "text":
+                    output.append("".join(i.itertext()))
                 else:
                     item = tostring(i, encoding="utf-8")
                     output.append(item.decode() if isinstance(item, bytes) else item)
-        if isinstance(self.index, int):
+        if isinstance(self.index, int) and output and len(output) >= self.index:
             return output[self.index]
         return output
 
@@ -83,7 +86,7 @@ class RegexValueStep(SyncStep):
             items = findall(self.expression, recipe.text_response)
         else:
             items = findall(self.expression, previous_output)
-        if isinstance(self.index, int):
+        if isinstance(self.index, int) and items and len(items) >= self.index:
             return items[self.index]
         return items
 
@@ -106,18 +109,7 @@ class ExtractItemsStep(AsyncStep):
         """Convert step dictionaries to Step instances before model creation."""
         converted_steps = {}
         for item, steps in value.items():
-            converted_steps[item] = []
-            for step in steps:
-                if isinstance(step, dict) and "type" in step:
-                    step_class = cls.step_registry.get(step["type"])
-                    if not step_class:
-                        raise ValueError(f"Unknown step type: {step['type']}")
-
-                    # Create the step instance
-                    converted_steps[item].append(step_class(**step))
-                else:
-                    # If it's already a Step instance or something else, keep it as is
-                    converted_steps[item].append(step)
+            converted_steps[item] = convert_steps(cls.step_registry, steps)
 
         return converted_steps
 
@@ -135,7 +127,8 @@ class ExtractItemsStep(AsyncStep):
             expression=self.expression,
             use_previous_output=self.use_previous_output,
         ).execute(recipe, previous_output)
-
+        if not data_items:
+            return []
         for data_number, data in enumerate(data_items, start=1):
             output = {}
             log.info(f"  ➡️  {data_number}.  Extracting item ")
