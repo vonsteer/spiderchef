@@ -1,4 +1,6 @@
-from typing import Any, ClassVar, Literal, Self
+from __future__ import annotations
+
+from typing import Any, ClassVar, Literal
 
 import yaml
 from curl_cffi import BrowserTypeLiteral, CurlHttpVersion
@@ -37,7 +39,7 @@ class Recipe(BaseModel):
     steps: list[BaseStep]
 
     @classmethod
-    def from_yaml(cls, file_path: str) -> Self:
+    def from_yaml(cls, file_path: str) -> "Recipe":
         with open(file_path, "r") as file:
             data = yaml.safe_load(file)
         return cls(**data)
