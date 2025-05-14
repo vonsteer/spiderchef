@@ -7,6 +7,7 @@ from curl_cffi import BrowserTypeLiteral, CurlHttpVersion
 from curl_cffi.requests import AsyncSession, Response
 from lxml.etree import _ElementTree
 from pydantic import BaseModel, Field, HttpUrl, field_validator
+from pydantic_extra_types.semantic_version import SemanticVersion
 from structlog import get_logger
 
 from spiderchef.steps import STEP_REGISTRY, AsyncStep, BaseStep
@@ -25,6 +26,7 @@ class Proxy(BaseModel):
 class Recipe(BaseModel):
     step_registry: ClassVar[dict[str, type[BaseStep]]] = STEP_REGISTRY
     name: str = "test_recipe"
+    version: SemanticVersion = SemanticVersion(1)
     base_url: str
     http_version: Literal["1", "1.1", "2", "3"] = "2"
     impersonate: BrowserTypeLiteral = "firefox"
