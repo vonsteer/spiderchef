@@ -1,3 +1,4 @@
+import asyncio
 from typing import TYPE_CHECKING, Any, Literal
 
 from curl_cffi import Response
@@ -24,12 +25,10 @@ class FetchStep(AsyncStep):
     json_data: dict[str, Any] = Field(default_factory=dict)
     data: dict[str, Any] | str = Field(default_factory=dict)
     headers: dict[str, Any] = Field(default_factory=dict)
-    ok_status_codes: list[int] = Field(default_factory=list)
+    ok_status_codes: list[int] = Field(default_factory=lambda: [200])
     timeout: int = 5
 
     def validate_response(self, response: Response):
-        if not self.ok_status_codes:
-            self.ok_status_codes = [200]
         if response.status_code not in self.ok_status_codes:
             raise ResponseIsNotOkError(response.status_code)
 
@@ -72,3 +71,11 @@ class FetchStep(AsyncStep):
                 return response.text
             case "response":
                 return response
+
+
+class SleepStep(AsyncStep):
+    timeout: int = 3
+
+    async def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        await asyncio.sleep(self.timeout)
+        return previous_output

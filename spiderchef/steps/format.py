@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urljoin
 
+from orjson import loads
 from structlog import get_logger
 
-from spiderchef.settings import RE_HTML_TAGS, RE_WHITESPACE_CHARS
+from spiderchef.settings import RE_CURRENCY_CHARS, RE_HTML_TAGS, RE_WHITESPACE_CHARS
 from spiderchef.steps.base import SyncStep
 
 if TYPE_CHECKING:
@@ -16,7 +17,7 @@ class ToInt(SyncStep):
     """Convert to integer."""
 
     def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
-        return int(previous_output)
+        return int(float(previous_output))
 
 
 class ToStr(SyncStep):
@@ -33,6 +34,17 @@ class ToFloat(SyncStep):
         return float(previous_output)
 
 
+class FromJson(SyncStep):
+    """Convert from json."""
+
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        return (
+            loads(previous_output.encode())
+            if isinstance(previous_output, str)
+            else previous_output
+        )
+
+
 class RemoveHTMLTags(SyncStep):
     """Removes HTML Tags from strings."""
 
@@ -41,10 +53,17 @@ class RemoveHTMLTags(SyncStep):
 
 
 class RemoveExtraWhitespace(SyncStep):
-    """Convert to integer."""
+    """Remove extra whitespace from strings."""
+
+    def _execute(self, recipe: "Recipe", previous_output: str = None) -> Any:
+        return RE_WHITESPACE_CHARS.sub(" ", previous_output)
+
+
+class RemoveCurrencySymbols(SyncStep):
+    """Remove currency symbols."""
 
     def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
-        return RE_WHITESPACE_CHARS.sub(" ", previous_output)
+        return RE_CURRENCY_CHARS.sub("", previous_output)
 
 
 class JoinBaseUrl(SyncStep):
@@ -82,11 +101,11 @@ class ToMoneyStep(SyncStep):
     decimal_separator: str = ","
     thousands_separator: str = "."
 
-    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> float:
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> float | None:
         if previous_output is None:
-            return 0.0
+            return None
 
-        value = str(previous_output).strip()
+        value = RemoveCurrencySymbols().execute(recipe, str(previous_output).strip())
 
         # Handle different formats
         if self.decimal_separator == "." and self.thousands_separator == ",":
@@ -110,4 +129,4 @@ class ToMoneyStep(SyncStep):
             return float(value)
         except ValueError:
             log.warning(f"Could not convert '{previous_output}' to money value")
-            return 0.0
+            return None

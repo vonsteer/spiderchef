@@ -11,14 +11,15 @@ if TYPE_CHECKING:
 class CompareStep(SyncStep):
     """Step to compare two values from the recipe's JSON data."""
 
-    left_key: str
-    right_key: str
+    left_key: str | None = None
+    right_key: str | None = None
+    compare_to: Any = None
     condition: Literal[
-        "greater_than",
-        "less_than",
-        "equal",
-        "greater_than_or_equal",
-        "less_than_or_equal",
+        "gt",
+        "lt",
+        "eq",
+        "gte",
+        "lte",
     ]
 
     def _execute(self, recipe: "Recipe", previous_output: Any = None) -> bool:
@@ -27,17 +28,28 @@ class CompareStep(SyncStep):
                 return value if isinstance(value, float | int) else len(value)
             raise ValueError(f"Could not get value for key: {key}")
 
-        left_value = get_value(recipe.json_response, self.left_key)
-        right_value = get_value(recipe.json_response, self.right_key)
+        if self.use_previous_output:
+            json_response = previous_output
+        else:
+            json_response = recipe.json_response
+
+        if self.left_key is not None:
+            left_value = get_value(json_response, self.left_key)
+        else:
+            left_value = previous_output
+        if self.right_key is not None:
+            right_value = get_value(json_response, self.right_key)
+        elif self.compare_to is not None:
+            right_value = self.compare_to
 
         match self.condition:
-            case "greater_than":
+            case "gt":
                 return left_value > right_value
-            case "equal":
+            case "eq":
                 return left_value == right_value
-            case "less_than":
+            case "lt":
                 return left_value < right_value
-            case "greater_than_or_equal":
+            case "gte":
                 return left_value >= right_value
-            case "less_than_or_equal":
+            case "lte":
                 return left_value <= right_value

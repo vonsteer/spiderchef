@@ -23,18 +23,15 @@ test-only: ## Run specific tests with cmdline arguments
 	uv run pytest -k "$(filter-out $@,$(MAKECMDGOALS))"
 
 .PHONY: test
-test: localstack-init run-tests localstack-stop badge ## Run testing and coverage.
+test: run-tests badge ## Run testing and coverage.
 
 .PHONY: test-ci
-test-ci: localstack-init run-tests localstack-stop ## Run testing and coverage.
+test-ci: run-tests  ## Run testing and coverage.
 
-.PHONY: localstack-init
-localstack-init: ## Starts localstack with init script
-	uv run localstack start -d --no-banner; uv run localstack wait -t 45
 
-.PHONY: localstack-stop
-localstack-stop: ## Starts localstack with init script
-	uv run localstack stop
+.PHONY: httpbin
+httpbin: ## Runs httpbin docker container
+	uv run -m ruff check
 
 ##@ 👷 Quality
 .PHONY: ruff-check

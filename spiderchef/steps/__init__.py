@@ -1,3 +1,4 @@
+from spiderchef.steps.asynchronous import FetchStep, SleepStep
 from spiderchef.steps.base import AsyncStep, BaseStep, SyncStep
 from spiderchef.steps.conditional import CompareStep
 from spiderchef.steps.extract import (
@@ -8,8 +9,8 @@ from spiderchef.steps.extract import (
     XpathFirstStep,
     XpathValueStep,
 )
-from spiderchef.steps.fetch import FetchStep
 from spiderchef.steps.format import (
+    FromJson,
     JoinBaseUrl,
     RemoveExtraWhitespace,
     RemoveHTMLTags,
@@ -21,6 +22,7 @@ from spiderchef.steps.format import (
 
 # Registry of available steps
 STEP_REGISTRY: dict[str, type[BaseStep]] = {
+    "extract_json": GetValueStep,
     "get": GetValueStep,
     "compare": CompareStep,
     "fetch": FetchStep,
@@ -34,6 +36,8 @@ STEP_REGISTRY: dict[str, type[BaseStep]] = {
     "to_int": ToInt,
     "to_str": ToStr,
     "to_float": ToFloat,
+    "from_json": FromJson,
+    "sleep": SleepStep,
     "remove_extra_whitespace": RemoveExtraWhitespace,
     "remove_html_tags": RemoveHTMLTags,
 }

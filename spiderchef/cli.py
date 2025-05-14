@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 from typing import Annotated
 
 import yaml
@@ -33,9 +34,18 @@ def cook(
 
 
 @recipe_app.command()
-def new(recipe_name: str = Argument(..., help="Name of the new recipe file")):
+def new(
+    output_file: Path = Option(
+        "./config_test.yaml",
+        "--output-file",
+        "-o",
+        help="Path where to save the new recipe file",
+        writable=True,
+        resolve_path=True,
+    ),
+):
     """Generate a new recipe config file."""
-    with open(f"config_{recipe_name}.yaml", "w") as f:
+    with output_file.open("w") as f:
         yaml.dump(BASE_RECIPE, f)
 
 
