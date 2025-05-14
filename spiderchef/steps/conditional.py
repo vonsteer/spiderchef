@@ -30,6 +30,7 @@ class CompareStep(SyncStep):
                 return value if isinstance(value, float | int) else len(value)
             raise ValueError(f"Could not get value for key: {key}")
 
+        right_value = None
         if self.use_previous_output:
             json_response = previous_output
         else:
@@ -44,14 +45,22 @@ class CompareStep(SyncStep):
         elif self.compare_to is not None:
             right_value = self.compare_to
 
+        # Ensure both values are not None before comparison
+        if right_value is None or left_value is None:  # pragma: no cover
+            raise ValueError(
+                f"Cannot compare: left value ({left_value}) or right value ({right_value}) is None"
+            )
+
         match self.condition:
-            case "gt":
-                return left_value > right_value
             case "eq":
                 return left_value == right_value
+            case "gt":
+                return left_value > right_value
             case "lt":
                 return left_value < right_value
             case "gte":
                 return left_value >= right_value
             case "lte":
                 return left_value <= right_value
+            case _:  # pragma: no cover
+                raise ValueError(f"Unknown condition: {self.condition}")

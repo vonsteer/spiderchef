@@ -57,7 +57,7 @@ class RemoveHTMLTags(SyncStep):
 class RemoveExtraWhitespace(SyncStep):
     """Remove extra whitespace from strings."""
 
-    def _execute(self, recipe: "Recipe", previous_output: str = None) -> Any:
+    def _execute(self, recipe: "Recipe", previous_output: str = "") -> Any:
         return RE_WHITESPACE_CHARS.sub(" ", previous_output)
 
 
