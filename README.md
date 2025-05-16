@@ -147,7 +147,6 @@ asyncio.run(recipe.cook())
 ## Variable Replacement
 SpiderChef supports variable replacement in your steps using the `${variable}` syntax. Variables can be defined in the Recipe and will be automatically replaced when the step is executed:
 
-# Define a recipe with variables
 ```python
 recipe = Recipe(
     name="Variable Example",
