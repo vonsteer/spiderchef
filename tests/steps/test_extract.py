@@ -51,7 +51,7 @@ def test_regex_value_step_response(mock_recipe: MockRecipe) -> None:
     step = RegexValueStep(
         name="test_regex", expression=r"<h2>(.*?)</h2>", use_previous_output=False
     )
-    result = step.execute(mock_recipe, None)
+    result = step.execute(mock_recipe, None)  # type: ignore
     assert result == ["Product 1", "Product 2"]
 
 
@@ -97,7 +97,7 @@ def test_xpath_value_step_response(mock_recipe: MockRecipe) -> None:
     step = XpathValueStep(
         name="test_xpath", expression="//h2/text()", use_previous_output=False
     )
-    result = step.execute(mock_recipe, None)
+    result = step.execute(mock_recipe, None)  # type: ignore
     assert result == ["Product 1", "Product 2"]
 
 
@@ -159,7 +159,7 @@ async def test_extract_items_step(mock_recipe: MockRecipe):
         },
     )
 
-    result = await step.execute(mock_recipe, html_content)
+    result = await step.execute(mock_recipe, html_content)  # type: ignore
     assert len(result) == 2
     assert result[0]["title"] == "Product 1"
     assert result[0]["price"] == 10.99
@@ -187,7 +187,7 @@ async def test_extract_items_step_regex(mock_recipe: MockRecipe):
     ExtractItemsStep.step_registry = STEP_REGISTRY
     step = ExtractItemsStep(
         name="extract_products",
-        expression="<div[^>]+?>([\s\S]+?)<\/div>",
+        expression=r"<div[^>]+?>([\s\S]+?)<\/div>",
         expression_type="regex",
         items={
             "title": [{"type": "xpath_first", "expression": ".//h2/text()"}],
@@ -210,7 +210,7 @@ async def test_extract_items_step_regex(mock_recipe: MockRecipe):
         },
     )
 
-    result = await step.execute(mock_recipe, html_content)
+    result = await step.execute(mock_recipe, html_content)  # type: ignore
     assert len(result) == 2
     assert result[0]["title"] == "Product 1"
     assert result[0]["price"] == 10.99
@@ -237,7 +237,7 @@ async def test_extract_items_step_json(mock_recipe: MockRecipe):
         },
     )
 
-    result = await step.execute(mock_recipe, json_content)
+    result = await step.execute(mock_recipe, json_content)  # type: ignore
     assert len(result) == 3
     assert result[0]["title"]
 
@@ -255,5 +255,5 @@ async def test_extract_items_step_json_no_items(mock_recipe: MockRecipe):
         },
     )
 
-    result = await step.execute(mock_recipe, json_content)
+    result = await step.execute(mock_recipe, json_content)  # type: ignore
     assert len(result) == 0

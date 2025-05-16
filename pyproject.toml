@@ -28,6 +28,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development",
     "Topic :: System :: Networking",
+    "Typing :: Typed",
     "Operating System :: OS Independent",
 ]
 dependencies = [

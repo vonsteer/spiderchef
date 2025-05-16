@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import string
 from re import findall
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from lxml.html import fromstring, tostring
 from pydantic import field_validator
@@ -100,7 +100,7 @@ class ExtractItemsStep(AsyncStep):
 
     expression: str
     expression_type: Literal["json", "xpath", "regex"] = "regex"
-    items: dict[str, list[BaseStep]]
+    items: dict[str, list[BaseStep | dict[str, Any]]]
 
     @field_validator("items", mode="before")
     def convert_step_dicts(
@@ -137,6 +137,7 @@ class ExtractItemsStep(AsyncStep):
                 item_output = data
                 log.info(f"    ➡️  {item_number}.  Extracting {item}...")
                 for step in steps:
+                    step = cast(BaseStep, step)
                     if issubclass(type(step), AsyncStep):
                         item_output = await step.execute(recipe, item_output)
                     else:

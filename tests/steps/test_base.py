@@ -7,7 +7,7 @@ from spiderchef.steps.base import AsyncStep, SyncStep
 
 
 @pytest.mark.asyncio
-async def test_sync_step_execution():
+async def test_sync_step_execution() -> None:
     """Test that SyncStep wraps sync execution in an async context"""
 
     class TestSyncStep(SyncStep):
@@ -20,7 +20,7 @@ async def test_sync_step_execution():
 
 
 @pytest.mark.asyncio
-async def test_async_step_execution():
+async def test_async_step_execution() -> None:
     """Test that AsyncStep handles async execution"""
 
     class TestAsyncStep(AsyncStep):

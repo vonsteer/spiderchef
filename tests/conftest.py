@@ -13,10 +13,11 @@ class MockRecipe:
 
     step_registry = STEP_REGISTRY
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.base_url = HTTPBIN_URL
         self._session = None
         self._tree = None
+        self.variables = {}
         self.json_response = {"hello": 3, "there": 5}
         self.text_response = """
     <div class="product">
@@ -29,13 +30,13 @@ class MockRecipe:
     </div>"""
 
     @property
-    async def session(self):
+    async def session(self) -> MagicMock:
         return MagicMock()
 
-    async def close(self):
+    async def close(self) -> None:
         pass
 
 
 @pytest.fixture
-def mock_recipe():
+def mock_recipe() -> MockRecipe:
     return MockRecipe()

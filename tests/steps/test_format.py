@@ -3,6 +3,7 @@ from typing import Any
 import pytest
 from tests.conftest import HTTPBIN_URL, MockRecipe
 
+from spiderchef.steps import SyncStep
 from spiderchef.steps.format import (
     JoinBaseUrl,
     RemoveExtraWhitespace,
@@ -27,13 +28,13 @@ from spiderchef.steps.format import (
 )
 @pytest.mark.asyncio
 async def test_format_steps(
-    step_class: ToInt | ToFloat | ToStr | RemoveHTMLTags | RemoveExtraWhitespace,
+    step_class: type[SyncStep],
     input_value: Any,
     expected_output: Any,
     mock_recipe: MockRecipe,
 ) -> None:
     step = step_class(name=f"test_{step_class.__name__}")
-    result = step.execute(mock_recipe, input_value)
+    result = step.execute(mock_recipe, input_value)  # type: ignore
     assert result == expected_output
 
 
@@ -50,7 +51,7 @@ async def test_format_steps(
 )
 @pytest.mark.asyncio
 async def test_format_steps_money(
-    step_class: ToMoneyStep,
+    step_class: type[ToMoneyStep],
     input_value: Any,
     thousands_separator: str,
     decimal_separator: str,
@@ -62,19 +63,19 @@ async def test_format_steps_money(
         thousands_separator=thousands_separator,
         decimal_separator=decimal_separator,
     )
-    result = step.execute(mock_recipe, input_value)
+    result = step.execute(mock_recipe, input_value)  # type: ignore
     assert result == expected_output
 
 
 @pytest.mark.asyncio
 async def test_join_base_url(mock_recipe: MockRecipe) -> None:
     step = JoinBaseUrl(name="test_join_url")
-    result = step.execute(mock_recipe, "/get")
+    result = step.execute(mock_recipe, "/get")  # type: ignore
     assert result == f"{HTTPBIN_URL}/get"
 
 
 @pytest.mark.asyncio
 async def test_join_base_url_suffix(mock_recipe: MockRecipe) -> None:
     step = JoinBaseUrl(name="test_join_url", suffix="/id")
-    result = step.execute(mock_recipe, ["/get", "/hello"])
+    result = step.execute(mock_recipe, ["/get", "/hello"])  # type: ignore
     assert result == [f"{HTTPBIN_URL}/get/id", f"{HTTPBIN_URL}/hello/id"]

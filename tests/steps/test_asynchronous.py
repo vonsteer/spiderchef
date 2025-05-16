@@ -82,5 +82,5 @@ async def test_fetch_step_not_ok(httpbin: Server) -> None:
 @pytest.mark.asyncio
 async def test_sleep(mock_recipe: MockRecipe) -> None:
     step = SleepStep(name="test_sleep")
-    result = await step.execute(mock_recipe, None)
+    result = await step.execute(mock_recipe, None)  # type: ignore
     assert result is None

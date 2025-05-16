@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, cast
 
 import yaml
 from curl_cffi import BrowserTypeLiteral, CurlHttpVersion
@@ -38,7 +38,8 @@ class Recipe(BaseModel):
     text_response: str | None = None
     headers: dict = Field(default_factory=dict)
     proxies: list[Proxy] = Field(default_factory=list)
-    steps: list[BaseStep]
+    steps: list[BaseStep | dict[str, Any]]
+    variables: dict = Field(default_factory=dict)
 
     @classmethod
     def from_yaml(cls, file_path: str) -> "Recipe":
@@ -76,13 +77,15 @@ class Recipe(BaseModel):
         if self._session:
             await self._session.__aexit__(None, None, None)
 
-    async def cook(self) -> Any:
+    async def cook(self, **kwargs) -> Any:
         output = None
         log.info(f"🥣🥄🔥 Cooking '{self.name}' recipe!")
+        self.variables = {**self.variables, **kwargs, "base_url": self.base_url}
         try:
             for step_number, step in enumerate(self.steps, start=1):
+                step = cast(BaseStep, step)
                 log.info(
-                    f"➡️  {step_number}. {step.name}...",
+                    f"➡️  {step_number}. {step.name or step.__class__.__name__}...",
                     step_class=step.__class__.__name__,
                 )
                 if issubclass(type(step), AsyncStep):

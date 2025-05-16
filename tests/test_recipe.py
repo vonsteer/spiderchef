@@ -1,12 +1,13 @@
 import os
 import tempfile
-from typing import Any, Generator
+from typing import Any, Generator, cast
 
 import pytest
 import yaml
 from pytest_httpbin.serve import Server
 
 from spiderchef.recipe import Recipe
+from spiderchef.steps import BaseStep
 
 
 class TestRecipe:
@@ -80,8 +81,14 @@ class TestRecipe:
         assert recipe.name == basic_recipe_dict["name"]
         assert recipe.base_url == basic_recipe_dict["base_url"]
         assert len(recipe.steps) == len(basic_recipe_dict["steps"])
-        assert recipe.steps[0].name == basic_recipe_dict["steps"][0]["name"]
-        assert recipe.steps[1].name == basic_recipe_dict["steps"][1]["name"]
+        assert (
+            cast(BaseStep, recipe.steps[0]).name
+            == basic_recipe_dict["steps"][0]["name"]
+        )
+        assert (
+            cast(BaseStep, recipe.steps[1]).name
+            == basic_recipe_dict["steps"][1]["name"]
+        )
 
     @pytest.mark.asyncio
     async def test_basic_recipe_cook(
@@ -247,3 +254,51 @@ class TestRecipe:
         # The recipe should raise an exception
         with pytest.raises(ValueError):
             Recipe(**recipe_dict)
+
+    @pytest.mark.asyncio
+    async def test_recipe_with_variable(self, httpbin: Server):
+        """Test recipe handling cookies"""
+        recipe_dict = {
+            "name": "post_recipe",
+            "base_url": httpbin.url,
+            "steps": [
+                {
+                    "type": "fetch",
+                    "path": "/post",
+                    "method": "POST",
+                    "json_data": {"test_key": ["${hello}"]},
+                    "return_type": "json",
+                },
+                {"type": "get", "expression": "json"},
+            ],
+        }
+
+        recipe = Recipe(**recipe_dict)
+
+        # Execute recipe
+        result = await recipe.cook(hello="there")
+
+        assert result.get("test_key") == ["there"]
+
+    @pytest.mark.asyncio
+    async def test_recipe_with_variable_failure(self, httpbin: Server):
+        """Test recipe handling cookies"""
+        recipe_dict = {
+            "name": "post_recipe",
+            "base_url": httpbin.url,
+            "steps": [
+                {
+                    "type": "fetch",
+                    "path": "/post",
+                    "method": "POST",
+                    "json_data": {"test_key": "${hello}"},
+                    "return_type": "json",
+                },
+                {"type": "get", "expression": "json"},
+            ],
+        }
+
+        recipe = Recipe(**recipe_dict)
+
+        with pytest.raises(ValueError):
+            await recipe.cook(there="there")
