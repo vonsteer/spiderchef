@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 from unittest.mock import MagicMock
 
 import pytest
@@ -23,7 +23,7 @@ from spiderchef.steps.conditional import CompareStep
 async def test_compare_step(
     input_value: Any,
     compare_to: Any,
-    condition: str,
+    condition: Literal["gt", "gte", "lt", "eq", "lte"],
     expected: bool,
 ):
     step = CompareStep(name="test_compare", compare_to=compare_to, condition=condition)
@@ -44,9 +44,9 @@ async def test_compare_step(
 @pytest.mark.asyncio
 async def test_compare_json_step(
     input_value: Any,
-    condition: str,
+    condition: Literal["gt", "gte", "lt", "eq", "lte"],
     expected: bool,
-):
+) -> None:
     step = CompareStep(
         name="test_compare", left_key="hello", right_key="there", condition=condition
     )
@@ -55,7 +55,7 @@ async def test_compare_json_step(
 
 
 @pytest.mark.asyncio
-async def test_compare_json_step_failure():
+async def test_compare_json_step_failure() -> None:
     step = CompareStep(
         name="test_compare", left_key="hello", right_key="there", condition="gt"
     )

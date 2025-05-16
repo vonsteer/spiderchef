@@ -30,7 +30,7 @@ class FetchStep(AsyncStep):
     ok_status_codes: list[int] = Field(default_factory=lambda: [200])
     timeout: int = 5
 
-    def validate_response(self, response: Response):
+    def validate_response(self, response: Response) -> None:
         if response.status_code not in self.ok_status_codes:
             raise ResponseIsNotOkError(response.status_code)
 

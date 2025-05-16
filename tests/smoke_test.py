@@ -24,10 +24,8 @@ async def test_smoke_spiderchef() -> None:
 
         CUSTOM_STEP_REGISTRY = {**STEP_REGISTRY, "hello": HelloStep, "sleep": SleepStep}
 
-        # Overrides the global step registry with your own
         Recipe.step_registry = CUSTOM_STEP_REGISTRY
 
-        # You can manually initiziales a recipe like so, or just use the yaml recipe.
         recipe = Recipe(
             base_url="https://example.com",
             name="Example",

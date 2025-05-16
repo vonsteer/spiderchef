@@ -1,4 +1,9 @@
 # Spider Chef 🕷️👨‍🍳
+[![PyPI](https://img.shields.io/pypi/v/spiderchef)](https://pypi.org/project/spiderchef/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/spiderchef)](https://pypi.org/project/spiderchef/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Coverage Status](./coverage-badge.svg?dummy=8484744)](./coverage.xml)
 ```
                    /\
                   /  \
@@ -14,9 +19,7 @@
     /      /     |                        \    \
    /     _/      |                         \    \
   /             _|                          \    \_
-_/                                           \
-                                              \
-                                               \_
+_/                                           \_                                               
 ```
 
 SpiderChef is a powerful, recipe-based web scraping tool that makes data extraction systematic and reproducible. By defining scraping procedures as "recipes" with sequential "steps," SpiderChef allows you to craft elegant, maintainable data extraction workflows.
@@ -62,6 +65,27 @@ from spiderchef import Recipe
 recipe = Recipe.from_yaml('recipe_example.yaml')
 # Run a recipe
 asyncio.run(recipe.cook())
+```
+## Example Recipe
+
+```yaml
+base_url: https://example.com
+name: ProductExtractor
+steps:
+  - type: fetch
+    name: fetch_product_page
+    page_type: text
+    path: /products
+    params:
+      category: electronics
+      sort: price_asc
+  
+  - type: regex
+    name: extract_product_urls
+    expression: '"(\/product\/[^"]+)"'
+  
+  - type: join_base_url
+    name: format_urls
 ```
 
 ### Custom Usage
@@ -119,26 +143,52 @@ asyncio.run(recipe.cook())
 """
 ```
 
-## Example Recipe
 
+## Variable Replacement
+SpiderChef supports variable replacement in your steps using the `${variable}` syntax. Variables can be defined in the Recipe and will be automatically replaced when the step is executed:
+
+```python
+recipe = Recipe(
+    name="Variable Example",
+    base_url="https://example.com"
+    # Default variables
+    variables={
+        "sort_order": "price_asc",
+        "category": "smartphones"
+    },
+    steps=[
+        # Variables are replaced automatically before execution
+        FetchStep(
+            name="Search Products",
+            path="/products"
+            params={
+              "category":"${category}"
+              "sort":"${sort_order}"
+            }
+        )
+    ]
+)
+# Uses default variables
+await recipe.cook()
+
+# Replace a specific variable, making any recipe extendable
+await recipe.cook(category="books")
+```
+In YAML recipes, you can use the same syntax:
 ```yaml
-base_url: https://example.com
 name: ProductExtractor
+base_url: https://example.com
+variables: # these are defaults
+  category: electronics
+  sort_order: price_asc
 steps:
   - type: fetch
     name: fetch_product_page
     page_type: text
     path: /products
     params:
-      category: electronics
-      sort: price_asc
-  
-  - type: regex
-    name: extract_product_urls
-    expression: '"(\/product\/[^"]+)"'
-  
-  - type: join_base_url
-    name: format_urls
+      category: ${category}
+      sort: ${sort_order}
 ```
 
 ## Why SpiderChef?

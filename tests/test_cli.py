@@ -186,7 +186,9 @@ class TestCli:
         finally:
             os.unlink(recipe_path)
 
-    def test_cook_command_with_headers(self, runner: CliRunner, httpbin: Server):
+    def test_cook_command_with_headers(
+        self, runner: CliRunner, httpbin: Server
+    ) -> None:
         """Test cook command with custom headers"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             # Create recipe that uses headers
