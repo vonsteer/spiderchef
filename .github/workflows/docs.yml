@@ -36,12 +36,12 @@ jobs:
         run: make dev
 
       - name: Check links
-        run: mkdocs build --strict
+        run: uv run mkdocs build --strict
         
       - name: Validate Python docstrings
         run: |
           # Run a simple validation check on docstrings
-          python -c "
+          uv python -c "
           import sys
           from pkgutil import iter_modules
           from importlib import import_module
