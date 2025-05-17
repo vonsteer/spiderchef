@@ -1,5 +1,5 @@
 from spiderchef.steps.asynchronous import FetchStep, SleepStep
-from spiderchef.steps.base import AsyncStep, BaseStep, SyncStep
+from spiderchef.steps.base import AsyncStep, BaseStep, SaveStep, SyncStep
 from spiderchef.steps.conditional import CompareStep
 from spiderchef.steps.extract import (
     ExtractItemsStep,
@@ -22,14 +22,13 @@ from spiderchef.steps.format import (
 
 # Registry of available steps
 STEP_REGISTRY: dict[str, type[BaseStep]] = {
-    "extract_json": GetValueStep,
     "get": GetValueStep,
     "compare": CompareStep,
     "fetch": FetchStep,
     "regex": RegexValueStep,
     "regex_first": RegexFirstStep,
-    "xpath_first": XpathFirstStep,
     "xpath": XpathValueStep,
+    "xpath_first": XpathFirstStep,
     "join_base_url": JoinBaseUrl,
     "extract_items": ExtractItemsStep,
     "to_money": ToMoneyStep,
@@ -40,6 +39,7 @@ STEP_REGISTRY: dict[str, type[BaseStep]] = {
     "sleep": SleepStep,
     "remove_extra_whitespace": RemoveExtraWhitespace,
     "remove_html_tags": RemoveHTMLTags,
+    "save": SaveStep,
 }
 
 __all__ = ["STEP_REGISTRY", "AsyncStep", "BaseStep", "SyncStep"]

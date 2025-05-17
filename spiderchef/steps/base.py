@@ -15,7 +15,7 @@ class BaseStep(ABC, BaseModel):
     """Base step class that all steps inherit from."""
 
     name: str = ""
-    step_registry: ClassVar[dict[str, type["BaseStep"]]]
+    step_registry: ClassVar[dict[str, type["BaseStep"]]] = {}
     use_previous_output: bool = True
 
     def _replace(self, variables: dict[str, Any], value: str) -> str:
@@ -98,3 +98,13 @@ class AsyncStep(BaseStep):
     async def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
         """Implementation of the step logic."""
         pass
+
+
+class SaveStep(SyncStep):
+    """Saves the previous_output into the variables to be used later on."""
+
+    variable: str
+
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        recipe.variables[self.variable] = previous_output
+        return previous_output

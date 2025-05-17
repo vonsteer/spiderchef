@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from spiderchef.steps.base import AsyncStep, SyncStep
+from spiderchef.steps.base import AsyncStep, SaveStep, SyncStep
 
 
 @pytest.mark.asyncio
@@ -32,3 +32,14 @@ async def test_async_step_execution() -> None:
     step = TestAsyncStep(name="test_async_step")
     result = await step.execute(MagicMock(), None)
     assert result == "async_result"
+
+
+def test_save_step_execution() -> None:
+    """Test that SaveStep correctly saves correctly to variables"""
+    mock = MagicMock()
+    mock.variables = {}
+    step = SaveStep(variable="hello")
+    result = step.execute(mock, "there")
+    assert result == "there"
+    assert mock.variables
+    assert mock.variables["hello"] == "there"
