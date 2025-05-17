@@ -33,10 +33,11 @@ jobs:
           enable-cache: true
       
       - name: Install dependencies
-        run: make dev      
-      - name: Build documentation
-        run: make docs
-      
+        run: make dev
+
+      - name: Build docs
+        run: uv run mkdocs build --strict
+        
       - name: Upload documentation artifacts
         uses: actions/upload-artifact@v4
         with:
