@@ -43,17 +43,27 @@ class Recipe(BaseModel):
 
     @classmethod
     def from_yaml(cls, file_path: str) -> "Recipe":
+        """Generate a Recipe object from a yaml file.
+
+        Args:
+            file_path: String file path to recipe yaml.
+
+        Returns:
+            The Initialised Recipe object.
+        """
         with open(file_path, "r") as file:
             data = yaml.safe_load(file)
         return cls(**data)
 
     @field_validator("steps", mode="before")
+    @classmethod
     def convert_step_dicts(cls, value: list[dict]) -> list[BaseStep]:
         """Convert step dictionaries to Step instances before model creation."""
         return convert_steps(cls.step_registry, value)
 
     @property
     async def session(self) -> AsyncSession:
+        """Curl-cffi Session used through all steps."""
         if not self._session:
             match self.http_version:  # pragma: no cover
                 case "2":
@@ -74,10 +84,30 @@ class Recipe(BaseModel):
         return self._session
 
     async def close(self) -> None:
+        """Close recipe and session."""
         if self._session:
             await self._session.__aexit__(None, None, None)
 
-    async def cook(self, **kwargs) -> Any:
+    async def cook(self, **kwargs: dict[str, Any]) -> Any:
+        """
+        Execute all steps in the recipe sequentially, passing the output of each step to the next.
+
+        This method initializes the recipe's variables (including any provided via kwargs and the base_url),
+        then iterates through each step in the recipe. Each step is executed in order, with the output of the
+        previous step passed as input to the next. Both synchronous and asynchronous steps are supported.
+
+        If an exception occurs during execution, the session is closed and the exception is re-raised.
+        The session is always closed at the end of execution.
+
+        Args:
+            **kwargs: Additional variables to inject into the recipe's variable context.
+
+        Returns:
+            The output of the final step in the recipe.
+
+        Raises:
+            Exception: Any exception raised by a step during execution.
+        """
         output = None
         log.info(f"🥣🥄🔥 Cooking '{self.name}' recipe!")
         self.variables = {**self.variables, **kwargs, "base_url": self.base_url}

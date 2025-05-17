@@ -7,10 +7,33 @@ repo_name: vonsteer/spiderchef
 theme:
   name: material
   palette:
-    primary: deep orange
-    accent: orange
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+      primary: purple
+      accent: purple
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: purple
+      accent: purple
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+      primary: purple
+      accent: purple
   icon:
     repo: fontawesome/brands/github
+  logo: icons/icon.svg
+  favicon: icons/spider-transparent.ico
   features:
     - navigation.instant
     - navigation.tracking
