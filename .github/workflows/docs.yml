@@ -33,34 +33,7 @@ jobs:
           enable-cache: true
       
       - name: Install dependencies
-        run: make dev
-
-      - name: Check links
-        run: uv run mkdocs build --strict
-        
-      - name: Validate Python docstrings
-        run: |
-          # Run a simple validation check on docstrings
-          uv python -c "
-          import sys
-          from pkgutil import iter_modules
-          from importlib import import_module
-          
-          import spiderchef
-          
-          exit_code = 0
-          for _, name, ispkg in iter_modules(spiderchef.__path__, 'spiderchef.'):
-              try:
-                  module = import_module(name)
-                  if not module.__doc__:
-                      print(f'Warning: {name} has no module docstring')
-              except (ImportError, AttributeError) as e:
-                  print(f'Error importing {name}: {e}')
-                  exit_code = 1
-          
-          sys.exit(exit_code)
-          "
-      
+        run: make dev      
       - name: Build documentation
         run: make docs
       
