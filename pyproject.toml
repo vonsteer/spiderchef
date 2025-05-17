@@ -41,12 +41,20 @@ dependencies = [
     "orjson>=3.10.18",
     "curl-cffi>=0.10.0",
     "lxml>=5.4.0",
+    "environs>=14.1.1"
 ]
 
 [dependency-groups]
 cli = ["typer>=0.15.3", "rich"]
+docs = [
+    "mkdocs>=1.5.3",
+    "mkdocs-material>=9.5.3",
+    "mkdocstrings>=0.24.0",
+    "mkdocstrings-python>=1.7.5"
+]
 dev = [
     {include-group = "cli"},
+    {include-group = "docs"},
     "ruff==0.11.6",
     "pyright==1.1.399",
     "pre-commit==4.2.0",
@@ -54,8 +62,9 @@ dev = [
     "pytest~=8.3.5",
     "pytest-asyncio~=0.24.0",
     "pytest-cov~=6.1.1",
-    "pytest-httpbin~=2.1.0"
+    "pytest-httpbin~=2.1.0",
 ]
+
 
 
 [project.scripts]

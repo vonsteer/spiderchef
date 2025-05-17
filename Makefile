@@ -8,15 +8,19 @@ help:  ## Shows this help message
 ##@ 🛠  Testing and development
 .PHONY: dev
 dev: ## Installs package with development dependencies
-	uv sync --all-extras
+	uv sync --all-extras --all-groups
+
+.PHONY: docs
+docs: ## Builds and serve docs
+	uv run mkdocs serve
 
 .PHONY: badge
-badge:
+badge: ## Generate coverage badge
 	uv run genbadge coverage -i coverage.xml
 
 .PHONY: run-tests
 run-tests:
-	uv run pytest --cov=$(PACKAGE) --cov-report term-missing --cov-fail-under=95 --cov-report xml:coverage.xml
+	HELLO=there uv run pytest --cov=$(PACKAGE) --cov-report term-missing --cov-fail-under=95 --cov-report xml:coverage.xml
 
 .PHONY: test-only
 test-only: ## Run specific tests with cmdline arguments
@@ -27,7 +31,6 @@ test: run-tests badge ## Run testing and coverage.
 
 .PHONY: test-ci
 test-ci: run-tests  ## Run testing and coverage.
-
 
 .PHONY: httpbin
 httpbin: ## Runs httpbin docker container

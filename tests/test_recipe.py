@@ -257,7 +257,7 @@ class TestRecipe:
 
     @pytest.mark.asyncio
     async def test_recipe_with_variable(self, httpbin: Server):
-        """Test recipe handling cookies"""
+        """Test recipe with a variable."""
         recipe_dict = {
             "name": "post_recipe",
             "base_url": httpbin.url,
@@ -282,7 +282,7 @@ class TestRecipe:
 
     @pytest.mark.asyncio
     async def test_recipe_with_variable_failure(self, httpbin: Server):
-        """Test recipe handling cookies"""
+        """Test recipe variable failure"""
         recipe_dict = {
             "name": "post_recipe",
             "base_url": httpbin.url,
@@ -292,6 +292,54 @@ class TestRecipe:
                     "path": "/post",
                     "method": "POST",
                     "json_data": {"test_key": "${hello}"},
+                    "return_type": "json",
+                },
+                {"type": "get", "expression": "json"},
+            ],
+        }
+
+        recipe = Recipe(**recipe_dict)
+
+        with pytest.raises(ValueError):
+            await recipe.cook(there="there")
+
+    @pytest.mark.asyncio
+    async def test_recipe_with_env_variable(self, httpbin: Server):
+        """Test recipe with env variable"""
+        recipe_dict = {
+            "name": "post_recipe",
+            "base_url": httpbin.url,
+            "steps": [
+                {
+                    "type": "fetch",
+                    "path": "/post",
+                    "method": "POST",
+                    "json_data": {"test_key": ["${env.HELLO}"]},
+                    "return_type": "json",
+                },
+                {"type": "get", "expression": "json"},
+            ],
+        }
+
+        recipe = Recipe(**recipe_dict)
+
+        # Execute recipe
+        result = await recipe.cook(hello="there")
+
+        assert result.get("test_key") == ["there"]
+
+    @pytest.mark.asyncio
+    async def test_recipe_with_env_variable_failure(self, httpbin: Server):
+        """Test recipe with env variable non existent"""
+        recipe_dict = {
+            "name": "post_recipe",
+            "base_url": httpbin.url,
+            "steps": [
+                {
+                    "type": "fetch",
+                    "path": "/post",
+                    "method": "POST",
+                    "json_data": {"test_key": "${env.NOT_REAL}"},
                     "return_type": "json",
                 },
                 {"type": "get", "expression": "json"},

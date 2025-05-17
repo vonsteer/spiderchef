@@ -121,7 +121,7 @@ dmypy.json
 *.swp
 *.swo
 
-
+.coverage
 # Config files
 /.recipes
 config*.yaml

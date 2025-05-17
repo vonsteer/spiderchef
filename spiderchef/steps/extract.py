@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 log = get_logger()
 
 
-class GetValueStep(SyncStep):
+class GetStep(SyncStep):
     """Step to get a value from the recipe's JSON data."""
 
     expression: str
@@ -41,7 +41,7 @@ class GetValueStep(SyncStep):
         )
 
 
-class XpathValueStep(SyncStep):
+class XpathStep(SyncStep):
     """Step to xpath a value from the recipe's text data."""
 
     expression: str
@@ -70,11 +70,11 @@ class XpathValueStep(SyncStep):
         return output
 
 
-class XpathFirstStep(XpathValueStep):
+class XpathFirstStep(XpathStep):
     index: int | None = 0
 
 
-class RegexValueStep(SyncStep):
+class RegexStep(SyncStep):
     """Step to regex a value from the recipe's text data."""
 
     index: int | None = None
@@ -91,7 +91,7 @@ class RegexValueStep(SyncStep):
         return items
 
 
-class RegexFirstStep(RegexValueStep):
+class RegexFirstStep(RegexStep):
     index: int | None = 0
 
 
@@ -117,11 +117,11 @@ class ExtractItemsStep(AsyncStep):
         outputs = []
         match self.expression_type:
             case "json":
-                extraction_cls = GetValueStep
+                extraction_cls = GetStep
             case "xpath":
-                extraction_cls = XpathValueStep
+                extraction_cls = XpathStep
             case "regex":
-                extraction_cls = RegexValueStep
+                extraction_cls = RegexStep
 
         data_items = extraction_cls(
             expression=self.expression,
