@@ -122,7 +122,7 @@ async def test_try_catch_step_with_async_steps() -> None:
         name="test_with_async",
         try_steps=[
             SuccessStep(name="sync_step", return_value="sync"),
-            SleepStep(name="sleep_step", timeout=0.01),
+            SleepStep(name="sleep_step", timeout=1),
         ],
         finally_steps=[SuccessStep(name="final_step", return_value="final")],
     )
