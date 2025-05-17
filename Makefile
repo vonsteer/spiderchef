@@ -12,7 +12,7 @@ dev: ## Installs package with development dependencies
 
 .PHONY: docs
 docs: ## Builds and serve docs
-	mkdocs serve
+	uv run mkdocs serve
 
 .PHONY: badge
 badge: ## Generate coverage badge
