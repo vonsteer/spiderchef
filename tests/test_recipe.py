@@ -24,7 +24,7 @@ class TestRecipe:
                     "path": "/get",
                     "return_type": "json",
                 },
-                {"type": "extract_json", "name": "extract_url", "expression": "url"},
+                {"type": "get", "name": "extract_url", "expression": "url"},
             ],
         }
 
@@ -135,7 +135,7 @@ class TestRecipe:
                     "json_data": {"test_key": "test_value"},
                     "return_type": "json",
                 },
-                {"type": "extract_json", "name": "extract_data", "expression": "json"},
+                {"type": "get", "name": "extract_data", "expression": "json"},
             ],
         }
 
@@ -162,7 +162,7 @@ class TestRecipe:
                     "return_type": "json",
                 },
                 {
-                    "type": "extract_json",
+                    "type": "get",
                     "name": "extract_headers",
                     "expression": "headers",
                 },
@@ -197,7 +197,7 @@ class TestRecipe:
                     "return_type": "json",
                 },
                 {
-                    "type": "extract_json",
+                    "type": "get",
                     "name": "extract_cookies",
                     "expression": "cookies",
                 },

@@ -120,7 +120,7 @@ CUSTOM_STEP_REGISTRY = {**STEP_REGISTRY, "hello": HelloStep, "sleep": SleepStep}
 # Overrides the global step registry with your own
 Recipe.step_registry = CUSTOM_STEP_REGISTRY
 
-# You can manually initiziales a recipe like so, or just use the yaml recipe.
+# You can manually initialise a recipe like so, or just use the yaml recipe.
 recipe = Recipe(
     base_url="https://example.com",
     name="Example",
@@ -189,6 +189,26 @@ steps:
     params:
       category: ${category}
       sort: ${sort_order}
+```
+You can even save variables within the recipe to be used later using the save step.
+```yaml
+name: ProductExtractor
+base_url: https://example.com
+variables:
+  category: electronics
+  sort_order: price_asc
+steps:
+  - type: fetch
+    name: fetch_product_page
+    path: /products
+    params:
+      category: ${category}
+      sort: ${sort_order}
+  - type: xpath
+    name: extract_title
+    expression: //h1
+  - type: save
+    variable: title
 ```
 
 ## Why SpiderChef?

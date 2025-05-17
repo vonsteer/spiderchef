@@ -30,7 +30,7 @@ class TestCli:
                     "path": "/get",
                     "return_type": "json",
                 },
-                {"type": "extract_json", "name": "extract_url", "expression": "url"},
+                {"type": "get", "name": "extract_url", "expression": "url"},
             ],
         }
 
@@ -125,8 +125,7 @@ class TestCli:
                         "return_type": "json",
                     },
                     {
-                        "type": "extract_json",
-                        "name": "extract_json",
+                        "type": "get",
                         "expression": "json",
                     },
                 ],
@@ -204,7 +203,7 @@ class TestCli:
                         "return_type": "json",
                     },
                     {
-                        "type": "extract_json",
+                        "type": "get",
                         "name": "extract_headers",
                         "expression": "headers",
                     },

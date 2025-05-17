@@ -98,3 +98,13 @@ class AsyncStep(BaseStep):
     async def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
         """Implementation of the step logic."""
         pass
+
+
+class SaveStep(SyncStep):
+    """Saves the previous_output into the variables to be used later on."""
+
+    variable: str
+
+    def _execute(self, recipe: "Recipe", previous_output: Any = None) -> Any:
+        recipe.variables[self.variable] = previous_output
+        return previous_output
