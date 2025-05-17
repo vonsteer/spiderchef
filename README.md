@@ -4,6 +4,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![Coverage Status](./coverage-badge.svg?dummy=8484744)](./coverage.xml)
+[![Documentation Status](https://readthedocs.org/projects/spiderchef/badge/?version=latest)](https://spiderchef.readthedocs.io/en/latest/?badge=latest)
 ```
                    /\
                   /  \
@@ -223,8 +224,19 @@ Whether you're scraping product data, monitoring prices, or extracting research 
 
 
 ## Documentation
-For full documentation, visit spiderchef.readthedocs.io.
+For full documentation, visit [spiderchef.readthedocs.io](https://spiderchef.readthedocs.io).
 
+The documentation includes:
+- Getting started guide
+- User guides for basic and advanced usage
+- API reference
+- Tutorials and examples
+- Contributing guidelines
+
+To build the documentation locally:
+```bash
+make docs
+```
 
 ## License
 

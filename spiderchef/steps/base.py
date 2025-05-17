@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 from pydantic import BaseModel
 
-from spiderchef.settings import RE_VAR
+from spiderchef.settings import RE_ENV_VAR, RE_VAR, env
 
 if TYPE_CHECKING:
     from spiderchef.recipe import Recipe
@@ -25,6 +25,18 @@ class BaseStep(ABC, BaseModel):
             placeholder = f"${{{var_name}}}"
             if placeholder in result:
                 result = result.replace(placeholder, str(var_value))
+
+        # Handle ${env.VAR_NAME}
+        def env_replacer(match) -> str:
+            env_var = match.group(1)
+            try:
+                return env.str(env_var)
+            except Exception:
+                raise ValueError(
+                    f"Environment variable '{env_var}' not found or invalid"
+                )
+
+        result = RE_ENV_VAR.sub(env_replacer, result)
 
         if "${" in result:
             if unreplaced_var := RE_VAR.findall(result):

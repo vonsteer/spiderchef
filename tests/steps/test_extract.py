@@ -6,11 +6,11 @@ from tests.conftest import MockRecipe
 from spiderchef.steps import STEP_REGISTRY
 from spiderchef.steps.extract import (
     ExtractItemsStep,
-    GetValueStep,
+    GetStep,
     RegexFirstStep,
-    RegexValueStep,
+    RegexStep,
     XpathFirstStep,
-    XpathValueStep,
+    XpathStep,
 )
 
 
@@ -28,7 +28,7 @@ from spiderchef.steps.extract import (
 )
 @pytest.mark.asyncio
 async def test_get_value_step(input_value, expression, expected):
-    step = GetValueStep(name="test_get", expression=expression)
+    step = GetStep(name="test_get", expression=expression)
     result = step.execute(MagicMock(), input_value)
     assert result == expected
 
@@ -42,13 +42,13 @@ async def test_get_value_step(input_value, expression, expected):
 )
 @pytest.mark.asyncio
 async def test_regex_value_step(input_value, pattern, expected):
-    step = RegexValueStep(name="test_regex", expression=pattern)
+    step = RegexStep(name="test_regex", expression=pattern)
     result = step.execute(MagicMock(), input_value)
     assert result == expected
 
 
 def test_regex_value_step_response(mock_recipe: MockRecipe) -> None:
-    step = RegexValueStep(
+    step = RegexStep(
         name="test_regex", expression=r"<h2>(.*?)</h2>", use_previous_output=False
     )
     result = step.execute(mock_recipe, None)  # type: ignore
@@ -88,13 +88,13 @@ async def test_regex_first_step(input_value, pattern, expected):
     ],
 )
 def test_xpath_value_step(input_html, xpath, return_type, expected):
-    step = XpathValueStep(name="test_xpath", expression=xpath, return_type=return_type)
+    step = XpathStep(name="test_xpath", expression=xpath, return_type=return_type)
     result = step.execute(MagicMock(), input_html)
     assert result == expected
 
 
 def test_xpath_value_step_response(mock_recipe: MockRecipe) -> None:
-    step = XpathValueStep(
+    step = XpathStep(
         name="test_xpath", expression="//h2/text()", use_previous_output=False
     )
     result = step.execute(mock_recipe, None)  # type: ignore

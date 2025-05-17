@@ -1,0 +1,72 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.readthedocs.yaml'
+      - 'spiderchef/**/*.py'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.readthedocs.yaml'
+      - 'spiderchef/**/*.py'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      
+      - name: Install dependencies
+        run: make dev
+
+      - name: Check links
+        run: mkdocs build --strict
+        
+      - name: Validate Python docstrings
+        run: |
+          # Run a simple validation check on docstrings
+          python -c "
+          import sys
+          from pkgutil import iter_modules
+          from importlib import import_module
+          
+          import spiderchef
+          
+          exit_code = 0
+          for _, name, ispkg in iter_modules(spiderchef.__path__, 'spiderchef.'):
+              try:
+                  module = import_module(name)
+                  if not module.__doc__:
+                      print(f'Warning: {name} has no module docstring')
+              except (ImportError, AttributeError) as e:
+                  print(f'Error importing {name}: {e}')
+                  exit_code = 1
+          
+          sys.exit(exit_code)
+          "
+      
+      - name: Build documentation
+        run: make docs
+      
+      - name: Upload documentation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: site/
+          retention-days: 7

@@ -41,6 +41,7 @@ dependencies = [
     "orjson>=3.10.18",
     "curl-cffi>=0.10.0",
     "lxml>=5.4.0",
+    "environs>=14.1.1"
 ]
 
 [dependency-groups]
@@ -54,7 +55,13 @@ dev = [
     "pytest~=8.3.5",
     "pytest-asyncio~=0.24.0",
     "pytest-cov~=6.1.1",
-    "pytest-httpbin~=2.1.0"
+    "pytest-httpbin~=2.1.0",
+]
+docs = [
+    "mkdocs>=1.5.3",
+    "mkdocs-material>=9.5.3",
+    "mkdocstrings>=0.24.0",
+    "mkdocstrings-python>=1.7.5"
 ]
 
 
