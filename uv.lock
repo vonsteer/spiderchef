@@ -1725,6 +1725,10 @@ cli = [
 ]
 dev = [
     { name = "genbadge", extra = ["coverage"] },
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings" },
+    { name = "mkdocstrings-python" },
     { name = "pre-commit" },
     { name = "pyright" },
     { name = "pytest" },
@@ -1745,7 +1749,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "curl-cffi", specifier = ">=0.10.0" },
-    { name = "environs" },
+    { name = "environs", specifier = ">=14.1.1" },
     { name = "lxml", specifier = ">=5.4.0" },
     { name = "orjson", specifier = ">=3.10.18" },
     { name = "pydantic", specifier = ">=2.11.4" },
@@ -1763,6 +1767,10 @@ cli = [
 ]
 dev = [
     { name = "genbadge", extras = ["coverage"] },
+    { name = "mkdocs", specifier = ">=1.5.3" },
+    { name = "mkdocs-material", specifier = ">=9.5.3" },
+    { name = "mkdocstrings", specifier = ">=0.24.0" },
+    { name = "mkdocstrings-python", specifier = ">=1.7.5" },
     { name = "pre-commit", specifier = "==4.2.0" },
     { name = "pyright", specifier = "==1.1.399" },
     { name = "pytest", specifier = "~=8.3.5" },
